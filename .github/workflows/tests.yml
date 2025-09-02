@@ -1,10 +1,13 @@
 name: Test the code
 on: [pull_request]
+permissions:
+  contents: read
+  pull-requests: read
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
     - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
