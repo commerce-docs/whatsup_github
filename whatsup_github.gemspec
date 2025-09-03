@@ -37,12 +37,12 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.0'
 
   spec.add_dependency 'netrc', '~> 0.11'
-  spec.add_dependency 'octokit', '~> 8.0'
+  spec.add_dependency 'octokit', '~> 10.0'
   spec.add_dependency 'thor', '~> 1.3'
 
   spec.add_development_dependency 'aruba', '~> 2.2'
   spec.add_development_dependency 'bundler', '~> 2.5'
-  spec.add_development_dependency 'cucumber', '~> 9.1'
+  spec.add_development_dependency 'cucumber', '~> 10.1'
   spec.add_development_dependency 'rake', '~> 13.1'
   spec.add_development_dependency 'rspec', '~> 3.12'
   spec.add_development_dependency 'fileutils', '~> 1.7'

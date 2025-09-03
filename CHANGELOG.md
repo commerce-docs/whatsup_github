@@ -1,5 +1,60 @@
 # Changelog
 
+## 1.2.0
+
+Maintenance:
+
+- Upgraded octokit dependency from ~> 8.0 to ~> 10.0
+- Upgraded cucumber dependency from ~> 9.1 to ~> 10.1
+- Updated all dependencies to their latest compatible versions
+
+## 1.0.1
+
+Fixes:
+
+- Fixed bug with missing whatsnew in enterprise repos
+
+## 1.0.0
+
+### General
+
+- Major version release with significant updates
+- Updated gemspec dependencies
+- Updated Ruby requirement to >= 2.7.0
+- Updated octokit to ~> 6.0
+- Updated thor to ~> 1.2
+
+### CLI improvements
+
+- Added version CLI option
+- Removed default option to make 'help' option default
+
+### Testing
+
+- Added test for 'version' CLI option
+- Updated tests to run with rake by default
+- Added code testing workflow
+- Removed Travis CI workflow
+
+### Bug fixes
+
+- Fixed GitHub API query requirement to include 'is:pull-request'
+- Updated search query as required by GitHub API
+
+## 0.5.0
+
+Fixes:
+
+- Fixed bug "422 - Query must include 'is:issue' or 'is:pull-request'"
+
+Maintenance:
+
+- Updated gemspec dependencies
+- Updated Ruby requirement to >= 2.7.0
+- Updated octokit to ~> 6.0
+- Updated thor to ~> 1.2
+- Updated development dependencies (aruba, bundler, cucumber, rspec, fileutils, faraday-retry)
+
 ## 0.4.2
 
 Fixes:
