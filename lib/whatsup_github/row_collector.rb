@@ -66,7 +66,7 @@ module WhatsupGithub
     end
 
     def pulls(repo)
-      Pulls.new(repo: repo, since: since).data
+      Pulls.new(repo:, since:).data
     end
 
     def config
