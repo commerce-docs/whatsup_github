@@ -11,15 +11,15 @@ Gem::Specification.new do |spec|
   spec.email         = ['shevtsov@adobe.com']
 
   spec.summary       = 'Collect info from GitHub pull requests.'
-  spec.homepage      = 'https://github.com/dshevtsov/whatsup_github'
+  spec.homepage      = 'https://github.com/commerce-docs/whatsup_github'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
     spec.metadata['homepage_uri'] = spec.homepage
-    spec.metadata['source_code_uri'] = 'https://github.com/dshevtsov/whatsup_github'
-    spec.metadata['changelog_uri'] = 'https://github.com/dshevtsov/whatsup_github/blob/master/CHANGELOG.md'
+    spec.metadata['source_code_uri'] = 'https://github.com/commerce-docs/whatsup_github'
+    spec.metadata['changelog_uri'] = 'https://github.com/commerce-docs/whatsup_github/blob/main/CHANGELOG.md'
   else
     raise 'RubyGems 2.0 or newer is required to protect against ' \
       'public gem pushes.'
@@ -36,6 +36,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 3.0'
 
+  spec.add_dependency 'dotenv', '~> 3.0'
   spec.add_dependency 'netrc', '~> 0.11'
   spec.add_dependency 'octokit', '~> 10.0'
   spec.add_dependency 'thor', '~> 1.3'
