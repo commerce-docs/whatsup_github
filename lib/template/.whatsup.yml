@@ -1,31 +1,29 @@
+---
 # Parameters for a GitHub search query
-base_branch: master
+base_branch: main
 
-# Set hostname to read repos at GitHub Enterprise
-# enterprise: <hostname>
-
-# The list of repositories to scan for pull requests
-# For repos at GitHub Enterprise, add a prefix 'enterprise:'. Example: enterprise:magento/devdocs.
+# The list of repositories to scan for pull requests.
+# For GitHub Enterprise repos, prefix the repo with 'enterprise:'.
+# Example: enterprise:my-org/my-repo
+# Set WHATSUP_GITHUB_ENTERPRISE_HOSTNAME for GHE Server.
+# Defaults to github.com (for GHEC).
 repos:
-  - magento/devdocs
+  - my-org/my-repo
 
-# Labels also will be used as a 'type' value in the output file
+# Labels used to filter pull requests.
+# 'required' labels must include the magic_word in the PR body.
+# 'optional' labels are included when the magic_word is present.
 labels:
   required:
-    - New Topic
-    - Major Update
+    - major-update
   optional:
-    - Technical
+    - technical
 
 # Format of output file
 output_format:
   - yaml
 #  - markdown
 
-# The phrase that is used as a separator in the pull request description.
-# All the lines that follows this phrase are captured as 'description' for this PR's entry in the resulted data file.
+# The phrase used as a separator in the pull request description.
+# All lines following this phrase are captured as 'description' in the output.
 magic_word: whatsnew
-
-# An organization to check a contributor for membership.
-# Values: 'true', 'false', empty if not configured.
-# membership: magento-commerce
