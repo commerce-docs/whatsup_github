@@ -23,6 +23,10 @@
 - Enterprise hostname validated against an allowlist regex; private/internal IP ranges are blocked
 - `.netrc` path resolved with `File.expand_path('~/.netrc')` for correctness in containerized environments
 
+### Bug fixes
+
+- `faraday-retry` promoted from development to runtime dependency — fixes missing-gem warning for consumers
+
 ### Maintenance
 
 - Updated all dependencies to their latest compatible versions

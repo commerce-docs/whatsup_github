@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.0'
 
   spec.add_dependency 'dotenv', '~> 3.0'
+  spec.add_dependency 'faraday-retry', '~> 2.2'
   spec.add_dependency 'netrc', '~> 0.11'
   spec.add_dependency 'octokit', '~> 10.0'
   spec.add_dependency 'thor', '~> 1.3'
@@ -47,5 +48,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 13.1'
   spec.add_development_dependency 'rspec', '~> 3.12'
   spec.add_development_dependency 'fileutils', '~> 1.7'
-  spec.add_development_dependency 'faraday-retry', '~> 2.2'
 end
