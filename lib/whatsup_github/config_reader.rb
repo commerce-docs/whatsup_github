@@ -14,20 +14,23 @@ module WhatsupGithub
     @@filename = ''
 
     def self.filename=(filename)
+      if filename.include?('..') || filename.start_with?('/')
+        abort "ERROR: Invalid config path '#{filename}'"
+      end
       @@filename = filename
     end
 
     def initialize
-      @file = @@filename
+      @file = File.expand_path(@@filename, Dir.pwd)
       @config = {}
     end
 
     def read
       unless File.exist?(@file)
-        dist_file = File.expand_path("../template/#{@file}", __dir__)
+        dist_file = File.expand_path("../template/#{File.basename(@file)}", __dir__)
         FileUtils.cp dist_file, @file
       end
-      @config = YAML.load_file @file
+      @config = YAML.safe_load(File.read(@file), permitted_classes: [Symbol])
       return {} unless @config
 
       @config
@@ -69,10 +72,6 @@ module WhatsupGithub
 
     def magic_word
       read['magic_word']
-    end
-
-    def enterprise
-      read['enterprise']
     end
   end
 end

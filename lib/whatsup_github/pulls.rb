@@ -16,15 +16,22 @@ module WhatsupGithub
     end
 
     def data
-      pull_requests = []
-      filtered_numbers.each do |number|
-        pull_requests << if @repo.start_with? 'enterprise:'
-                           enterprise_client.pull_request(@repo, number)
-                         else
-                           client.pull_request(@repo, number)
-                         end
+      node_ids = filtered_node_ids
+      return [] if node_ids.empty?
+
+      if @repo.start_with? 'enterprise:'
+        enterprise_client.pull_requests_by_node_ids(node_ids)
+      else
+        client.pull_requests_by_node_ids(node_ids)
       end
-      pull_requests
+    rescue Octokit::Unauthorized
+      abort 'ERROR: Authentication failed. Check your access token.'
+    rescue Octokit::Forbidden
+      abort 'ERROR: Access forbidden. Verify token scopes or check your API rate limit.'
+    rescue Octokit::Error => e
+      abort "ERROR: GitHub API error: #{e.message}"
+    rescue Faraday::Error => e
+      abort "ERROR: Network error: #{e.message}"
     end
 
     private
@@ -54,7 +61,6 @@ module WhatsupGithub
     end
 
     def enterprise_client
-      WhatsupGithub::EnterpriseClient.host = configuration.enterprise
       EnterpriseClient.instance
     end
 
@@ -69,12 +75,22 @@ module WhatsupGithub
     end
 
     def call_query(query)
-      puts "Searching on GitHub by query #{query}"
+      warn "DEBUG: #{query}" if ENV['DEBUG']
       if repo.start_with? 'enterprise:'
         enterprise_client.search_issues(query)
       else
         client.search_issues(query)
       end
+    rescue Octokit::Unauthorized
+      abort 'ERROR: Authentication failed. Check your access token.'
+    rescue Octokit::Forbidden
+      abort 'ERROR: Access forbidden. Verify token scopes or check your API rate limit.'
+    rescue Octokit::NotFound
+      abort "ERROR: Repository not found: #{repo.delete_prefix('enterprise:')}"
+    rescue Octokit::Error => e
+      abort "ERROR: GitHub API error: #{e.message}"
+    rescue Faraday::Error => e
+      abort "ERROR: Network error: #{e.message}"
     end
 
     def query(label)
@@ -100,8 +116,8 @@ module WhatsupGithub
       issues
     end
 
-    def filtered_numbers
-      filtered_issues.map(&:number)
+    def filtered_node_ids
+      filtered_issues.map(&:node_id)
     end
   end
 end

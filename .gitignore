@@ -11,7 +11,8 @@
 .rspec_status
 
 
-/credentials.yml
+/.env
 /.whatsup.yml
 /output/
 *.gem
+.cursor/

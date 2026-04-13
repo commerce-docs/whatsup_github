@@ -62,7 +62,9 @@ Date when the pull request was merged.
 
 ### `link`
 
-URL of the pull request.
+URL of the pull request. For repos with the `enterprise:` prefix, the link is
+formatted as `enterprise:<org>/<repo>/pull/<number>` to avoid exposing the
+internal hostname.
 
 ### `contributor`
 
@@ -71,10 +73,6 @@ An author of a pull request.
 ### `merge_commit`
 
 Merge commit SHA of the pull request.
-
-### `membership`
-
-Membership of the contributor in a configured organization.
 
 ### `labels`
 
@@ -106,7 +104,8 @@ bundle
 
 ## Configuration
 
-The default configuration file [`.whatsup.yml`](lib/template/.whatsup.yml) will be created automatically after first run unless it's already there.
+The default configuration file [`.whatsup.yml`](lib/template/.whatsup.yml) will be
+created automatically after first run unless it's already there.
 
 To use non-default location or name of the file, use the --config option. Example:
 
@@ -116,45 +115,53 @@ whatsup_github since 'apr 9' --config 'configs/whatsup_bp.yml'
 
 ## Authentication
 
-### With the .netrc file
+Authentication is checked in this order: environment variables → `.env` file → `~/.netrc` → guest (rate-limited).
 
-Use [`~/.netrc`](https://github.com/octokit/octokit.rb#using-a-netrc-file) file for authentication.
+### With a .env file
 
-```config
-machine api.github.com
-  login <GitHub login>
-  password <GitHub token>
+Create a `.env` file in the directory where you run `whatsup_github`. See [`.env.example`](.env.example) for the format.
+
+```bash
+WHATSUP_GITHUB_ACCESS_TOKEN=<public-github-token>
+WHATSUP_GITHUB_ENTERPRISE_HOSTNAME=<enterprise-hostname>
+WHATSUP_ENTERPRISE_ACCESS_TOKEN=<enterprise-github-token>
 ```
 
-Example:
-
-```config
-machine api.github.com
-  login mypubliclogin
-  password y9o6YvEoa7IukRWUFdnkpuxNjJ3uwiDQp4zkAdU0
-```
-
-Example with GitHub Enterprise:
-
-```config
-machine api.github.com
-  login mypubliclogin
-  password y9o6YvEoa7IukRWUFdnkpuxNjJ3uwiDQp4zkAdU0
-
-machine git.enterprise.example.com
-  login myenterpriselogin
-  password GtH7yhvEoa7Iuksdo&TFuxNjJ3uwiDQhjbiu8&yhJhG
-```
-
-### With an environment variable
-
-Assign the `WHATSUP_GITHUB_ACCESS_TOKEN` to the GitHub token you want to use, prior the `whatsup_github` command.
-
-Example:
+### With environment variables
 
 ```bash
 WHATSUP_GITHUB_ACCESS_TOKEN=askk494nmfodic68mk whatsup_github since 'apr 2'
 ```
+
+`WHATSUP_GITHUB_ENTERPRISE_HOSTNAME` sets the hostname for GitHub Enterprise Server
+(e.g. `git.example.com`). Optional for GHEC — defaults to `github.com`.
+
+`WHATSUP_ENTERPRISE_ACCESS_TOKEN` is used for repos prefixed with `enterprise:` in
+`.whatsup.yml`. Useful when you need two separate accounts — for example, a public
+GitHub account and a GHEC org account.
+
+### With the .netrc file
+
+Use [`~/.netrc`](https://github.com/octokit/octokit.rb#using-a-netrc-file) for
+authentication. See [`.netrc.example`](.netrc.example) for the format.
+
+```config
+machine api.github.com
+  login <github-username>
+  password <personal-access-token>
+```
+
+For GitHub Enterprise Server (self-hosted), add a second entry using the server hostname:
+
+```config
+machine git.enterprise.example.com
+  login <enterprise-username>
+  password <enterprise-personal-access-token>
+```
+
+> **Note:** `.netrc` only supports one entry per host. If you need two different
+> accounts on `api.github.com` (e.g., public GitHub + GHEC), use `.env` or
+> environment variables instead.
 
 ## Usage
 
@@ -162,10 +169,10 @@ WHATSUP_GITHUB_ACCESS_TOKEN=askk494nmfodic68mk whatsup_github since 'apr 2'
 whatsup_github since 'apr 2'
 ```
 
-If run with no arguments, it generates data for the past week:
+To use the default date range of the past 7 days, omit the date:
 
 ```bash
-whatsup_github
+whatsup_github since
 ```
 
 You can use different date formats like `'April 2'`, `'2 April'`, `'apr 2'`, `'2 Apr'`, `2018-04-02`.
@@ -188,7 +195,8 @@ You can also run `bin/console` for an interactive prompt that will allow you to 
 
 ### Testing
 
-The project contains [rspec](https://rspec.info/) tests in `spec` and [cucumber](https://app.cucumber.pro/p/af1681aa-415f-44f0-8260-5454a69c472a/aruba/documents/branch/master/features/03_testing_frameworks/cucumber/steps/filesystem/check_existence_of_file.feature) tests in `features`.
+The project contains [rspec](https://rspec.info/) tests in `spec` and
+cucumber tests in `features`.
 
 #### specs
 
@@ -233,9 +241,45 @@ ruby lib/whatsup_github/config_reader.rb
 
 The tests use the root `.whatsup.yml` file to read configuration.
 
+### Local testing against live GitHub data
+
+The tool makes live GitHub API calls, so end-to-end local testing requires
+real credentials and a real repository.
+
+#### Set up credentials
+
+Copy `.env.example` to `.env` and fill in your tokens:
+
+```bash
+cp .env.example .env
+```
+
+#### Use a narrow date range
+
+A short window keeps the result set small and avoids burning API rate limits:
+
+```bash
+bundle exec whatsup_github since 'yesterday'
+```
+
+#### Check the output
+
+Results are written to `tmp/whats-new.yml`. The `tmp/` directory is
+gitignored, so test output won't be accidentally committed.
+
+#### Debug search queries
+
+To inspect the exact GitHub search queries being sent, run with `DEBUG=1`:
+
+```bash
+DEBUG=1 bundle exec whatsup_github since 'yesterday'
+```
+
 ## Contributing
 
-Bug reports and pull requests are welcome. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome. This project is intended to be a safe,
+welcoming space for collaboration, and contributors are expected to adhere to the
+[Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 

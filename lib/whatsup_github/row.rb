@@ -11,14 +11,9 @@ module WhatsupGithub
                 :assignee,
                 :author,
                 :author_url,
-                :merge_commit,
-                :is_private,
-                :membership
+                :merge_commit
 
     def initialize(args)
-      @repo = args[:repo]
-      @repo_url = args[:repo_url]
-      @is_private = args[:private]
       @title = args[:pr_title]
       @body = args[:pr_body]
       @date = args[:date]
@@ -29,7 +24,6 @@ module WhatsupGithub
       @pr_number = args[:pr_number]
       @link = args[:pr_url]
       @merge_commit = args[:merge_commit_sha]
-      @membership = args[:membership]
       @config = Config.instance
     end
 
@@ -42,7 +36,9 @@ module WhatsupGithub
     end
 
     def magic_word
-      @config.magic_word
+      word = @config.magic_word
+      abort "ERROR: 'magic_word' is not set in your configuration file." if word.nil? || word.empty?
+      word
     end
 
     def versions
@@ -72,7 +68,7 @@ module WhatsupGithub
     def description
       # If a PR body includes a phrase 'whatsnew', then parse the body.
       # If there are at least one required label but PR body does not include what's new, warn about missing 'whatsnew'
-      if body.include?(magic_word)
+      if body&.include?(magic_word)
         parse_body
       else
         message = "MISSING #{magic_word} in the #{type} PR \##{pr_number}: \"#{title}\" assigned to #{assignee} (#{link})"

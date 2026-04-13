@@ -1,0 +1,13 @@
+# ~/.netrc — fallback authentication when environment variables are not set.
+# File must have permissions 600: chmod 600 ~/.netrc
+#
+# Public GitHub
+machine api.github.com
+  login <github-username>
+  password <personal-access-token>
+
+# GitHub Enterprise Server (self-hosted only)
+# Not needed for GitHub Enterprise Cloud (GHEC) — use WHATSUP_ENTERPRISE_ACCESS_TOKEN in .env instead.
+machine <hostname>
+  login <enterprise-username>
+  password <enterprise-personal-access-token>

@@ -25,21 +25,16 @@ module WhatsupGithub
     def collect_rows_for_a(repo)
       pulls(repo).map do |pull|
         Row.new(
-          repo: repo,
-          repo_url: pull.base.repo.html_url,
-          private: pull.base.repo.private?,
           pr_number: pull.number,
           pr_title: pull.title,
           pr_body: pull.body,
           date: pull.merged_at,
-          pr_labels: label_names(pull.labels),
-          assignee: assignee(pull.assignees),
-          membership: member?(pull.user.login),
-          merger: pull.merged_by.login,
-          merge_commit_sha: pull.merge_commit_sha,
-          author: pull.user.login,
-          author_url: pull.user.html_url,
-          pr_url: pull.html_url
+          pr_labels: label_names(pull.labels.nodes),
+          assignee: assignee(pull.assignees.nodes),
+          merge_commit_sha: pull.merge_commit&.oid,
+          author: pull.author&.login,
+          author_url: pull.author&.url,
+          pr_url: pr_url(repo, pull)
         )
       end
     end
@@ -50,11 +45,13 @@ module WhatsupGithub
       end.reverse
     end
 
-    def reverse(collection)
-      collection.reverse
-    end
-
     private
+
+    def pr_url(repo, pull)
+      return pull.url unless repo.start_with?('enterprise:')
+
+      "enterprise:#{repo.delete_prefix('enterprise:')}/pull/#{pull.number}"
+    end
 
     def assignee(assignees)
       if assignees.empty?
@@ -64,37 +61,16 @@ module WhatsupGithub
       end
     end
 
-    def member?(login)
-      return nil unless config.membership
-
-      member_logins.include? login
-    end
-
     def label_names(labels)
       labels.map(&:name)
     end
 
     def pulls(repo)
-      Pulls.new(repo: repo, since: since).data
-    end
-
-    def load_members
-      return if @members
-
-      @members = client.org_members(config.membership)
-    end
-
-    def member_logins
-      load_members
-      @members.map(&:login)
+      Pulls.new(repo:, since:).data
     end
 
     def config
       Config.instance
-    end
-
-    def client
-      Client.instance
     end
   end
 end

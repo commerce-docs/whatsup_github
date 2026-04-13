@@ -1,5 +1,36 @@
 # Changelog
 
+## 2.0.0
+
+### Breaking changes
+
+- Removed `membership` field from YAML output and configuration — the org-membership check has been removed entirely
+- Enterprise hostname must now be set via the `WHATSUP_GITHUB_ENTERPRISE_HOSTNAME` environment variable instead of the `enterprise` key in `.whatsup.yml`, so the config file is safe to commit to git
+- Enterprise PR links in generated output now use the format `enterprise:org/repo/pull/N` instead of the internal hostname URL, hiding the private hostname from committed files
+
+### New features
+
+- GitHub Enterprise Cloud (GHEC) support — `WHATSUP_GITHUB_ENTERPRISE_HOSTNAME` defaults to `github.com` (GHEC) when unset
+- PR data fetching replaced N+1 REST calls with a single GraphQL `nodes(ids: [...])` batch query for a significant performance improvement
+- Query logging is now opt-in: set `DEBUG=1` to print GitHub search queries to stderr
+- Unauthenticated mode now warns at startup and reminds how to set credentials
+- `.netrc` file permission check warns when the file is world-readable
+
+### Security fixes
+
+- YAML configuration is now loaded with `safe_load` to prevent arbitrary object deserialization
+- Config file path validated against path traversal (`..` and absolute paths rejected)
+- Enterprise hostname validated against an allowlist regex; private/internal IP ranges are blocked
+- `.netrc` path resolved with `File.expand_path('~/.netrc')` for correctness in containerized environments
+
+### Bug fixes
+
+- `faraday-retry` promoted from development to runtime dependency — fixes missing-gem warning for consumers
+
+### Maintenance
+
+- Updated all dependencies to their latest compatible versions
+
 ## 1.2.0
 
 Maintenance:
