@@ -1,8 +1,6 @@
 # whatsup_github
 
-[![Gem version](https://img.shields.io/gem/v/whatsup_github.svg?style=flat)](https://rubygems.org/gems/whatsup_github)
-
-This tool helps updating data for [Whats New on DevDocs](http://devdocs.magento.com/whats-new.html).
+This tool helps updating data for What's New section on the public Adobe Commerce technical documentation resources.
 It filters GitHub pull requests and generates a data file.
 One pull request sources one data entity.
 All filtering parameters are set in a configuration file, except dates.
@@ -26,7 +24,27 @@ Options:
 
 ## What's generated
 
-A resulting YAML file `tmp/whats-new.yml` is generated from GitHub data.
+Output is controlled by `output_format` in `.whatsup.yml`, which accepts one or more of:
+
+- `yaml` — writes `tmp/whats-new.yml`.
+- `markdown` — writes headerless Markdown table rows to `tmp/whats-new-on-devdocs.md` with description, versions, type, and date (`YYYY-MM-DD`). With no matching pull requests, the file is empty.
+- `custom` — renders rows through a project-supplied [Mustache](https://github.com/mustache/mustache) template.
+
+```yaml
+output_format:
+  - yaml
+  - custom
+templates:
+  custom: path/to/your-template.mustache
+custom_output: tmp/whats-new-custom.txt
+```
+
+For `custom`, `templates.custom` must point to a file inside the project directory (relative to where
+`whatsup_github` is run), and `custom_output` sets the destination path. The template receives
+`{{#rows}}`, each with `description`, `versions`, `type`, `date`, `link`, `merge_commit`, `contributor`,
+and `labels`.
+
+The fields below describe each row, as produced for the `yaml` and `custom` formats.
 
 ### `description`
 
@@ -53,8 +71,12 @@ Set as a list of `labels` in `.whatsup.yml`. There are two types of labels in co
 
 ### `versions`
 
-Any GitHub label that starts from a digit followed by a period like in regular expression `\d\.`.
-Examples: `2.3.x`, `1.0.3-msi`, `2.x`
+Generated from pull request labels that begin with one or more digits followed by a period, matching `\A\d+\.`.
+Examples: `2.3.x`, `1.0.3-msi`, `2.x`, `12.4`.
+
+Matching labels are kept unchanged and joined with a comma and a space in their original order.
+For example, labels `whatsnew`, `2.4`, and `12.4` produce `2.4, 12.4`.
+If no labels match, `versions` is an empty string.
 
 ### `date`
 
@@ -195,33 +217,38 @@ You can also run `bin/console` for an interactive prompt that will allow you to 
 
 ### Testing
 
-The project contains [rspec](https://rspec.info/) tests in `spec` and
-cucumber tests in `features`.
+The project contains [RSpec](https://rspec.info/) unit and CLI integration tests in `spec`.
 
-#### specs
-
-To run rspec tests:
+To run all tests, including offline replay of recorded GitHub API interactions:
 
 ```bash
-rake spec
+bundle exec rake
 ```
 
-#### features
+In-process specs disable real network access ([WebMock](https://github.com/bblimke/webmock)) and generate a
+[SimpleCov](https://github.com/simplecov-ruby/simplecov) coverage report at `coverage/index.html`.
+Subprocess tests exercise executable startup and configuration rejection without making API requests.
 
-To run Cucumber tests:
+To run only CLI integration tests:
 
 ```bash
-rake features
+bundle exec rspec spec/whatsup_github/cli_integration_spec.rb
 ```
 
-To pass the `output_file.feature` tests, you need to generate a non-empty `whats-new.yml`.
-To test just file:
+Integration tests create their own configuration and output files in temporary directories.
+The recorded API test uses [VCR](https://github.com/vcr/vcr) with a cassette under
+`spec/fixtures/cassettes/`. Recording is disabled by default, so it runs without live network access.
+The existing cassette contains an empty search result; it verifies API replay and empty YAML output,
+not rendering of non-empty pull request data. Run it separately with:
 
 ```bash
-bundle exec cucumber features/since.feature
+bundle exec rspec spec/whatsup_github/cli_integration_spec.rb --example 'recorded GitHub API interactions'
 ```
 
-NOTE: Cucumber tests will use the configuration file from code `lib/template/.whatsup.yml`.
+To re-record a cassette, delete the corresponding file under `spec/fixtures/cassettes/`, export a
+valid `WHATSUP_GITHUB_ACCESS_TOKEN` before starting RSpec, and temporarily switch the record mode
+from `:none` to `:once` in `spec/whatsup_github/cli_integration_spec.rb`. Run the command above,
+then restore `:none` and review the cassette for sensitive data before committing it.
 
 #### Individual files
 

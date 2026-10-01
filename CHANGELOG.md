@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.1.0
+
+### New features
+
+- Added a `custom` `output_format` that renders rows through a project-supplied Mustache template (`templates.custom` / `custom_output` config keys)
+- `markdown` output now renders through a Mustache template instead of hand-built strings
+
+### Testing
+
+- Added RSpec coverage (SimpleCov, WebMock) across Config, Client, EnterpriseClient, Pulls, RowCollector, Row, Runner, CLI, and the output formatters
+- Replaced Cucumber and Aruba with RSpec integration tests covering config validation, output formats, and the enterprise SSRF guard
+- Included offline VCR replay of recorded GitHub API responses in the default test suite
+- Added fixture-based regression tests for nested template paths and directory-symlink escapes
+
 ## 2.0.0
 
 ### Breaking changes

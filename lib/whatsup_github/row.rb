@@ -42,11 +42,15 @@ module WhatsupGithub
     end
 
     def versions
-      label_versions = labels.select { |label| label.start_with?(/\d\./) }
+      label_versions = labels.select { |label| label.match?(/\A\d+\./) }
       label_versions.join(', ')
     end
 
     def date
+      Date.parse(@date.to_s).to_s
+    end
+
+    def date_string
       @date.strftime('%B %-e, %Y')
     end
 
@@ -75,6 +79,20 @@ module WhatsupGithub
         puts message
         message
       end
+    end
+
+    # Raw field set shared by formatters that need the full row (YAML, custom templates).
+    def to_h
+      {
+        'description' => description,
+        'versions' => versions,
+        'type' => type,
+        'date' => date,
+        'link' => link,
+        'merge_commit' => merge_commit,
+        'contributor' => author,
+        'labels' => labels
+      }
     end
   end
 end

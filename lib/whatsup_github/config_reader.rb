@@ -73,6 +73,15 @@ module WhatsupGithub
     def magic_word
       read['magic_word']
     end
+
+    # Path to a project-supplied Mustache template, used when output_format includes 'custom'.
+    def template_path
+      read.dig('templates', 'custom')
+    end
+
+    def custom_output
+      read['custom_output']
+    end
   end
 end
 

@@ -23,6 +23,15 @@ labels:
 output_format:
   - yaml
 #  - markdown
+#  - custom
+
+# Required when output_format includes 'custom'.
+# 'templates.custom' must be a path inside the project, relative to where
+# whatsup_github is run. Rows are exposed to the template as {{#rows}}, each
+# with: description, versions, type, date, link, merge_commit, contributor, labels.
+# templates:
+#   custom: path/to/your-template.mustache
+# custom_output: tmp/whats-new-custom.txt
 
 # The phrase used as a separator in the pull request description.
 # All lines following this phrase are captured as 'description' in the output.
