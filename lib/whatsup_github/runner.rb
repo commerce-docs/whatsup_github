@@ -5,6 +5,7 @@ require_relative 'generator'
 require_relative 'config_reader'
 require_relative 'yaml_formatter'
 require_relative 'table'
+require_relative 'custom_formatter'
 
 module WhatsupGithub
   class Runner
@@ -20,6 +21,7 @@ module WhatsupGithub
 
       table if format.include? 'markdown'
       data if format.include? 'yaml'
+      custom if format.include? 'custom'
     end
 
     def write_results(file, formatter)
@@ -39,6 +41,13 @@ module WhatsupGithub
 
     def data
       write_results 'tmp/whats-new.yml', YAMLFormatter.new
+    end
+
+    def custom
+      output = @config.custom_output
+      abort "ERROR: 'custom_output' is not set in your configuration file." if output.nil? || output.empty?
+
+      write_results output, CustomFormatter.new
     end
   end
 end
