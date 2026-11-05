@@ -59,6 +59,23 @@ RSpec.describe WhatsupGithub::Pulls do
       expect(build_pulls.data).to eq(['pr'])
     end
 
+    {
+      'multiple required labels' => [%w[enhancement bug], []],
+      'multiple optional labels' => [[], %w[technical documentation]],
+      'required and optional labels' => [['enhancement'], ['technical']]
+    }.each do |label_combination, (required, optional)|
+      it "fetches each PR only once when it matches #{label_combination}" do
+        allow(config).to receive_messages(required_labels: required, optional_labels: optional)
+        client = instance_double(WhatsupGithub::Client)
+        allow(WhatsupGithub::Client).to receive(:instance).and_return(client)
+        stub_search(client, node_ids: %w[node1 node2])
+        expect(client).to receive(:pull_requests_by_node_ids).with(%w[node1 node2]).and_return(%w[pr1 pr2])
+
+        expect(build_pulls.data).to eq(%w[pr1 pr2])
+        expect(client).to have_received(:search_issues).twice
+      end
+    end
+
     it 'searches optional labels with the magic word appended to the query' do
       allow(config).to receive_messages(required_labels: [], optional_labels: ['technical'])
       client = instance_double(WhatsupGithub::Client)

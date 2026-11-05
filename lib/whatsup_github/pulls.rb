@@ -117,7 +117,7 @@ module WhatsupGithub
     end
 
     def filtered_node_ids
-      filtered_issues.map(&:node_id)
+      filtered_issues.map(&:node_id).uniq
     end
   end
 end
