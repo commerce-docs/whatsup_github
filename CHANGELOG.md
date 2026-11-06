@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.1
+
+### Bug fixes
+
+- Deduplicated pull requests that match multiple labels so each PR appears once in the output
+
 ## 2.1.0
 
 ### New features

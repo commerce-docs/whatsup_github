@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    whatsup_github (2.1.0)
+    whatsup_github (2.1.1)
       dotenv (~> 3.0)
       faraday-retry (~> 2.2)
       mustache (~> 1.1)
